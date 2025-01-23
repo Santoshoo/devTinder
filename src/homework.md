@@ -1,0 +1,9 @@
+-create a repository
+-Initialize the repo
+-node_modules,package.json,p
+-CREATE A SERVER
+-listen port 7777
+-write request handlers for /test
+-install nodemon and update
+-difference between craet and tilde
+-what is the use of "-g " while npm install

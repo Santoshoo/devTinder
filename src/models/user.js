@@ -6,6 +6,7 @@ const userSchema=new mongoose.Schema({
         type:String,
         required:true,
     minlenght:5,
+    maxlength:50,
     },
     lastName:{
         type:String
@@ -25,6 +26,11 @@ const userSchema=new mongoose.Schema({
     password:{
         type:String,
         required:true,
+        validate(value){
+            if(!validator.isStrongPassword(value)){
+                throw new Error("Password is invalid");
+            }
+        }
     },
     age:{
         type:Number,
@@ -40,7 +46,12 @@ const userSchema=new mongoose.Schema({
     },
     },
     photoUrl:{
-        type:String
+        type:String,
+        validator(value){
+            if(!validator.isURL(value)){
+                throw new Error("URL is invalid");}
+            }
+
     },
     about:{
         type:String,

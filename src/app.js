@@ -2,15 +2,20 @@ const express = require("express");
 const { connectDB } = require("./config/database");
 const User=require("./models/user")
 const app = express();
-const validator = require('validator');
+const { validateSignUp } = require("./utils/validation");
+const bcrypt=require("bcrypt");9
+const jwt=require("jsonwebtoken");
+const cookieParser=require("cookie-parser")
 
 app.use(express.json());
 //express.json() is a method inbuilt in express to recognize the incoming Request Object as a JSON Object. This method is called as a middleware in your application using the code: app.use(express.json());
+app.use(cookieParser());
+
 
 app.post("/signup",async(req,res)=>{
   console.log(req.body);
 
-  //creating a new instance of User model
+ 
   // {
   //   firstName:"santosh",
   //   lastName:"kumar",
@@ -19,34 +24,104 @@ app.post("/signup",async(req,res)=>{
   //   age:23,
   //   gender:"male"
   // }
-  const user = new User(req.body);
+  
   
 
   try {
-const isEmailValid=validator.isEmail(user.emailId);
-const isPasswordValid=validator.isStrongPassword(user.password);
-const isphotoUrl=validator.isURL(user.photoUrl);
+    // const isEmailValid=validator.isEmail(user.emailId);
+    // const isPasswordValid=validator.isStrongPassword(user.password);
+    // const isphotoUrl=validator.isURL(user.photoUrl);
 
-if(!isEmailValid){
-  throw new Error("Email is invalid");
-}
-if (!isPasswordValid) {
-  throw new Error("Email is invalid");
-}
-if (!isphotoUrl) {
-  throw new Error("Email is invalid");
-}
+    // if(!isEmailValid){
+    //   throw new Error("Email is invalid");
+    // }
+    // if (!isPasswordValid) {
+    //   throw new Error("Email is invalid");
+    // }
+    // if (!isphotoUrl) {
+    //   throw new Error("Email is invalid");
+    // }
 
 
+//validate the data
+validateSignUp(req);
+const {firstName,lastName,emailId,password}=req.body;
+//encrypt the password
+const passwordHash= await bcrypt.hash(password,12);
+console.log(passwordHash);
 
+    //creating a new instance of User model
+    const user = new User({
+      firstName,
+      lastName,
+      emailId,
+      password:passwordHash,
+     
+    });
     await user.save();
     res.send("User added sucessfully");
   } catch (error) {
     console.error("Error saving user:", error);
-    res.status(400).send("User not added");
+    res.status(400).send("User not added" );
   }
 })
 
+
+app.post("/login",async (req,res)=>{
+ 
+  try{
+     const { emailId, password } = req.body;
+    const user=await User.findOne({ emailId:emailId});
+    if(!user){
+      throw new Error("User not found");
+    }
+    const  isPasswordMatch=await bcrypt.compare(password,user.password);
+   if(isPasswordMatch){
+
+//create a JWT Token
+const token=jwt.sign({_id:user._id},"DEV@Tinder$1234");
+console.log(token);
+
+
+//Add the taken to cookie send the response back to user
+res.cookie("token",token);
+     res.send("Login sucessfully");}
+     else{
+       throw new Error("Invalid password");
+     }
+   
+  }catch(error){
+    res.status(400).send("Something went wrong");
+  }
+});
+
+
+app.get("/profile",async(req,res)=>{
+  try{
+    const cookies = req.cookies;
+    const { token } = cookies;
+    if(!token){
+      throw new Error("Token not found");
+    }
+    //valiadte the token
+
+    const decodeedMsg = await jwt.verify(token, "DEV@Tinder$1234");
+
+    const { _id } = decodeedMsg;
+    console.log("logged user" + _id);
+
+    const user = await User.findById(_id);
+     
+  
+
+     if(!user){
+     throw new error ("User not found")
+     }
+     res.send(user);
+  }catch(error){
+    res.status(400).send("Something went wrong");
+  }
+})
 
 app.get("/user",async(req,res)=>{
   //const userEmail=req.body.emailId;

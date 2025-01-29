@@ -69,11 +69,11 @@ app.post("/login", async (req, res) => {
     if (!user) {
       throw new Error("User not found");
     }
-    const isPasswordMatch = await bcrypt.compare(password, user.password);
+    const isPasswordMatch = await user.validatePassword(password);
     if (isPasswordMatch) {
       //create a JWT Token
-      const token = jwt.sign({ _id: user._id }, "DEV@Tinder$1234",{expiresIn:"1d"});
-      console.log(token);
+      const token = await user.getJWT();
+    
 
       //Add the taken to cookie send the response back to user
       res.cookie("token", token,{expires:new Date(Date.now()+8*3600000)}); 

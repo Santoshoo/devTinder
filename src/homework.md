@@ -98,3 +98,70 @@ app.get("/user", userAuth, (req, res) => {
 
 
 -difference json vs object
+
+
+
+
+app.get("/user", async (req, res) => {
+  //const userEmail=req.body.emailId;
+  const userId = req.body._id;
+  try {
+    //const user= await User.findOne({ emailId: userEmail });
+    const user = await User.findById(userId);
+    res.send(user);
+    //   if(users.length===0){
+    //  res.status(400).send("User not found");
+    //   }else{
+    //     res.send(users);
+    //   }
+  } catch (error) {
+    res.status(400).send("Something went wrong");
+  }
+});
+
+//Feed API-GET /feed -get all the users from database
+app.get("/feed", async (req, res) => {
+  try {
+    const users = await User.find({});
+    res.send(users);
+  } catch (error) {
+    res.status(400).send("Something went wrong");
+  }
+});
+
+app.delete("/user", async (req, res) => {
+  const userId = req.body.userId;
+  try {
+    const user = await User.findByIdAndDelete(userId);
+    res.send("User deleted sucessfully");
+  } catch (error) {
+    res.status(400).send("Something went wrong");
+  }
+});
+
+//update the data
+app.patch("/user", async (req, res) => {
+  const userId = req.params.userId;
+  const updateData = req.body;
+
+  try {
+    const ALLOWED_UDATES = ["userId", "photourl", "about", "skills"];
+    const isUpdatedAllowed = Object.keys(upadateData).every((update) =>
+      ALLOWED_UDATES.includes(update)
+    );
+    if (!isUpdatedAllowed) {
+      throw new Error("Invalid updates");
+    }
+    if (updateData.skills.length > 10) {
+      throw new Error("Skills cannot be more than 10");
+    }
+    const user = await User.findByIdAndUpdate({ _id: userId }, updateData, {
+      options: "before",
+      runvalidators: true,
+    });
+    console.log(user);
+    res.send("User updated sucessfully");
+  } catch (error) {
+    res.status(400).send("Something went wrong");
+  }
+});

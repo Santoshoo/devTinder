@@ -7,6 +7,7 @@ const userSchema=new mongoose.Schema(
     firstName:{
         type:String,
         required:true,
+     
     minlenght:5,
     maxlength:50,
     },
@@ -14,6 +15,7 @@ const userSchema=new mongoose.Schema(
         type:String
     },
     emailId:{
+        
         type:String,
         lowercase:true,
         required:true,

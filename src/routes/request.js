@@ -50,5 +50,42 @@ if(existingRequest){
 })
 
 
+requestRouter.post("/request/review/:status/:requestId",userAuth,async(req,res)=>{
+
+
+  try{
+    const loggedInUser = req.user;
+    const { status, requestId } = req.params;
+    //validate the status
+    const allowedStatus = ["accepted", "rejected"];
+    if (!allowedStatus.includes(status)) {
+      return res.status(400).json({ message: "Invalid status" });
+    }
+
+    //vivek=>elon
+    //loggedInId=toUserID
+    //status=interested
+    //requested id should be valid or present in the db
+    const connectionRequest = await ConnectionRequest.findOne({
+      _id: requestId,
+      toUserId: loggedInUser._id,
+      status: "interested",
+    })
+    if(!connectionRequest){
+      return res.status(404).json({message:"Connection not found"});
+    }
+    connectionRequest.status=status;
+    const data=await connectionRequest.save();
+    res.json({
+      message: `Connection request ${status} successfully`,
+      data: data,})
+  }
+  catch(error){
+    console.error("Error saving user:", error);
+    res.status(400).send("Connection not sent" );
+  }
+});
+
+
 
 module.exports=requestRouter;

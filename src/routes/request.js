@@ -39,7 +39,7 @@ if(existingRequest){
     //$or:[{fromUserId:fromUserId,toUserId:toUserId},{fromUserId:toUserId,toUserId:fromUserId}]
     const data = await connectionRequest.save();
     res.json({
-      message: `Connection request ${status} successfully`,
+      message: `${fromUserId} send ${status}  request  to ${toUserId} successfully`,
       data: data,
     });
 

@@ -14,14 +14,41 @@ const validateSignUp=(req)=>{
 }
 
 const validateEditProfileData=(req)=>{
-    const allowedEditFields=["firstName","lastName","emailId","age","skills","photoUrl"];
+    const allowedEditFields=["firstName","lastName","about","age","skills","photoUrl","gender"];
 
 
-   const isEditAllowed= Object.keys(req.body).every((field)=>{
-allowedEditFields.includes(field);
-    })
+   const isEditAllowed= Object.keys(req.body).every(field=>
+allowedEditFields.includes(field)
+    );
     return isEditAllowed;
 }
+
+// const validateEditProfileData = (req) => {
+//   const allowedEditFields = [
+//     "firstName",
+//     "lastName",
+//     "about",
+//     "age",
+//     "skills",
+//     "photoUrl",
+//   ];
+//   const receivedFields = Object.keys(req.body);
+
+//   console.log("Received Fields:", receivedFields); // ✅ Debugging
+//   console.log("Allowed Fields:", allowedEditFields);
+
+//   const invalidFields = receivedFields.filter(
+//     (field) => !allowedEditFields.includes(field)
+//   );
+
+//   if (invalidFields.length > 0) {
+//     console.log("Invalid Fields Found:", invalidFields); // ✅ Debugging
+//     return false; // ❌ Stops processing if invalid fields exist
+//   }
+
+//   return true; // ✅ Validation passed
+// };
+
 
 
 module.exports={validateSignUp,

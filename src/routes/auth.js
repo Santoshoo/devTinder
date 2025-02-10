@@ -45,8 +45,14 @@ authRouter.post("/signup", async (req, res) => {
       emailId,
       password: passwordHash,
     });
-    await user.save();
-    res.send("User added sucessfully");
+    const savedUser=await user.save();
+          const token = await savedUser .getJWT();
+
+          //Add the taken to cookie send the response back to user
+          res.cookie("token", token, {
+            expires: new Date(Date.now() + 8 * 3600000),
+          });
+    res.json({message:"User added sucessfully",data:savedUser});
   } catch (error) {
     console.error("Error saving user:", error);
     res.status(400).send("User not added");
@@ -71,7 +77,7 @@ authRouter.post("/login", async (req, res) => {
       });
       res.send(user);
     } else {
-      throw new Error("Invalid password");
+      res.status(400).send("Invalid  credentials");
     }
   } catch (error) {
      console.error("Error saving user:", error);

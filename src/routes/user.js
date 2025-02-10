@@ -4,7 +4,7 @@ const {userAuth}=require("../middlewares/auth");
 const ConnectionRequest=require("../models/connectionRequest");
 const User=require("../models/user");
 
-const USER_SAFE_DATA="firstName lastName email skills photoUrl";
+const USER_SAFE_DATA="firstName lastName email skills photoUrl age about";
 //Get all the requests sent by the user
 userRouter.get("/user/request/received",userAuth,async(req,res)=>{
     try{
@@ -46,7 +46,7 @@ const data=connectionRequests.map((row)=> {
 
 
 res.json({
-    mesage:"Data fetched successfully",
+   
     data
 })
     }catch(error){
@@ -78,7 +78,7 @@ userRouter.get("/feed",userAuth,async(req,res)=>{
                
            });
 
-           const users=await User.find({
+           const user=await User.find({
             $and:[
                 {_id:{$ne:loggedInUser._id}},
                 {_id:{$nin:Array.from(hideUserFromFeed)}},
@@ -87,9 +87,8 @@ userRouter.get("/feed",userAuth,async(req,res)=>{
            }).select(USER_SAFE_DATA).skip(skip).limit(limit);
         
         res.json({
-            mesage:"Data fetched successfully",
-            users
-        })
+          
+            user       })
     }catch(error){
         console.error("Error fetching user:", error);
         res.status(400).send("Error fetching user");

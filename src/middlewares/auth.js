@@ -14,7 +14,7 @@ try{
   const cookies = req.cookies;
   const { token } = cookies;
   if (!token) {
-    return res.status(401).send("please Login!")
+    return res.status(401).send("Please Login!")
   }
 
   const decodedObj = jwt.verify(token, "DEV@Tinder$1234");

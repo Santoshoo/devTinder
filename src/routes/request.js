@@ -5,6 +5,8 @@ const User=require("../models/user");
 
 const requestRouter=express.Router();
 
+const sendEmail=require("../utils/sendEmail");
+
 requestRouter.post("/request/send/:status/:touserId", userAuth, async (req, res) => {
   try{
     const fromUserId = req.user._id;
@@ -38,6 +40,12 @@ if(existingRequest){
 }
     //$or:[{fromUserId:fromUserId,toUserId:toUserId},{fromUserId:toUserId,toUserId:fromUserId}]
     const data = await connectionRequest.save();
+const emailRes = await sendEmail.run("A friend request from",
+  `${fromUserId} send ${status}  request  to ${toUserId} successfully`,
+);
+console.log("Email sent",emailRes);
+
+
     res.json({
       message: `${fromUserId} send ${status}  request  to ${toUserId} successfully`,
       data: data,

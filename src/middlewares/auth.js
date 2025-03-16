@@ -17,7 +17,7 @@ try{
     return res.status(401).send("Please Login!")
   }
 
-  const decodedObj = jwt.verify(token, "DEV@Tinder$1234");
+  const decodedObj = jwt.verify(token, process.env.JWT_SECRET);
 
   const { _id } = decodedObj;
   console.log(_id);

@@ -69,8 +69,7 @@ const userSchema = new mongoose.Schema(
       default: "This is default value",
     },
     skills: {
-      type: ["javascript","java","react","node"],
-      
+      type: ["javascript", "java", "react", "node"],
     },
   },
   { timestamps: true }

@@ -3,6 +3,7 @@ const { connectDB } = require("./config/database");
 const cors = require("cors");
 const app = express();
 const cookieParser = require("cookie-parser");
+const http = require("http");
 
 
 require("dotenv").config();
@@ -30,10 +31,9 @@ const chatRouter = require("./routes/chat");
 
 
 
-const http=require('http');
 
-const server=http.createServer(app);
-intializeSocket(server);
+
+
 
 
 
@@ -45,6 +45,9 @@ app.use("/", requestRouter);
 app.use("/", userRouter);
 app.use("/", paymentRouter);
 app.use("/", chatRouter);
+
+const server = http.createServer(app);
+intializeSocket(server);
 
 connectDB()
   .then(() => {

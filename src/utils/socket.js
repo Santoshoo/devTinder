@@ -1,16 +1,16 @@
 const socket = require("socket.io");
 const crypto = require("crypto");
-const Chat = require("../models/chat");
+const  Chat  = require("../models/chat");
 const ConnectionRequest = require("../models/connectionRequest");
 
 const getSecretRoomId = (userId, targetUserId) => {
   return crypto
     .createHash("sha256")
-    .update([userId, targetUserId].sort().join("_"))
+    .update([userId, targetUserId].sort().join("$"))
     .digest("hex");
 };
 
-const intializeSocket = (server) => {
+const initializeSocket = (server) => {
   const io = socket(server, {
     cors: {
       origin: "http://localhost:5173",
@@ -20,61 +20,46 @@ const intializeSocket = (server) => {
   io.on("connection", (socket) => {
     socket.on("joinChat", ({ firstName, userId, targetUserId }) => {
       const roomId = getSecretRoomId(userId, targetUserId);
-      console.log(firstName + " joined the chat" + roomId);
+      console.log(firstName + " joined Room : " + roomId);
       socket.join(roomId);
     });
 
     socket.on(
       "sendMessage",
-      async ({ firstName,lastName, userId, targetUserId, text }) => {
-        //save mesg to db
+      async ({ firstName, lastName, userId, targetUserId, text }) => {
+        // Save messages to the database
         try {
           const roomId = getSecretRoomId(userId, targetUserId);
-          console.log(roomId);
-          console.log(firstName + " sent a message to " + text);
+          console.log(firstName + " " + text);
 
-          //check if userId and targetUserId friend or not
-//      const existingUser = await ConnectionRequest.findOne({
-//        $or: [
-//          { userId: userId, targetUserId: targetUserId, status: "accepted" },
-//          { userId: targetUserId, targetUserId: userId, status: "accepted" },
-//        ],
-//      });
-          
-// if (!connection || connection.status !== "accepted") {
-//   console.log("Message blocked: Users are not friends.");
-//   return; // Stop message processing if not friends
-// }
-        
+          // TODO: Check if userId & targetUserId are friends
 
-        
-            let chat = await Chat.findOne({
-              participants: { $all: [userId, targetUserId] },
+          let chat = await Chat.findOne({
+            participants: { $all: [userId, targetUserId] },
+          });
+
+          if (!chat) {
+            chat = new Chat({
+              participants: [userId, targetUserId],
+              messages: [],
             });
-            if (!chat) {
-              chat = new Chat({
-                participants: [userId, targetUserId],
-                messages: [],
-              });
-            }
-        
+          }
 
-          chat.messages.push({ senderId: userId, text });
-
-          await chat.save();
-          io.to(roomId).emit("messageReceived", {
-            firstName,
-            lastName,
+          chat.messages.push({
+            senderId: userId,
             text,
           });
+
+          await chat.save();
+          io.to(roomId).emit("messageReceived", { firstName, lastName, text });
         } catch (err) {
           console.log(err);
         }
-
-        socket.on("disconnect", () => {});
       }
     );
+
+    socket.on("disconnect", () => {});
   });
 };
 
-module.exports = intializeSocket;
+module.exports = initializeSocket;

@@ -3,7 +3,7 @@ const { connectDB } = require("./config/database");
 const cors = require("cors");
 const app = express();
 const cookieParser = require("cookie-parser");
-const intializeSocket = require("./utils/socket");
+
 
 require("dotenv").config();
 // require("./utils/cronjob");
@@ -25,6 +25,7 @@ const profileRouter = require("./routes/profile");
 const requestRouter = require("./routes/request");
 const userRouter = require("./routes/user");
 const paymentRouter = require("./routes/payment");
+const intializeSocket = require("./utils/socket");
 const chatRouter = require("./routes/chat");
 
 
